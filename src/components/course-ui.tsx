@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, PlayCircle, Youtube, Menu } from "lucide-react";
+import { BookOpen, PlayCircle, Menu, CheckCircle, ArrowRight } from "lucide-react";
 
 import { courseData, type Lesson, type Module } from "@/data/course";
 import { cn } from "@/lib/utils";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,17 +17,24 @@ import { YarnIcon } from "@/components/icons";
 export function CourseUI() {
   const [currentLesson, setCurrentLesson] = React.useState<Lesson | null>(null);
   const [currentModule, setCurrentModule] = React.useState<Module | null>(null);
+  const [completedLessons, setCompletedLessons] = React.useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+  
+  const totalLessons = React.useMemo(() => courseData.reduce((acc, module) => acc + module.lessons.length, 0), []);
+  const progressPercentage = totalLessons > 0 ? (completedLessons.size / totalLessons) * 100 : 0;
 
+  // Load progress from localStorage
   React.useEffect(() => {
     try {
-      const savedProgress = localStorage.getItem("colecao-lucre-com-charme-progress");
+      const savedLastLesson = localStorage.getItem("colecao-lucre-com-charme-last-lesson");
+      const savedCompletedLessons = localStorage.getItem("colecao-lucre-com-charme-completed");
+      
       let lessonToLoad: Lesson | null = null;
       let moduleToLoad: Module | null = null;
 
-      if (savedProgress) {
-        const { moduleId, lessonId } = JSON.parse(savedProgress);
+      if (savedLastLesson) {
+        const { moduleId, lessonId } = JSON.parse(savedLastLesson);
         moduleToLoad = courseData.find((m) => m.id === moduleId) ?? null;
         if (moduleToLoad) {
           lessonToLoad = moduleToLoad.lessons.find((l) => l.id === lessonId) ?? null;
@@ -36,6 +44,10 @@ export function CourseUI() {
       if (!lessonToLoad) {
         moduleToLoad = courseData[0] ?? null;
         lessonToLoad = moduleToLoad?.lessons[0] ?? null;
+      }
+      
+      if (savedCompletedLessons) {
+        setCompletedLessons(new Set(JSON.parse(savedCompletedLessons)));
       }
 
       setCurrentLesson(lessonToLoad);
@@ -51,32 +63,74 @@ export function CourseUI() {
     }
   }, []);
 
+  // Save progress to localStorage
   React.useEffect(() => {
-    if (currentLesson && currentModule) {
-      try {
-        const progress = JSON.stringify({
+    try {
+      if (currentLesson && currentModule) {
+        const lastLesson = JSON.stringify({
           moduleId: currentModule.id,
           lessonId: currentLesson.id,
         });
-        localStorage.setItem("colecao-lucre-com-charme-progress", progress);
-      } catch (error) {
-        console.error("Falha ao salvar o progresso do curso:", error);
+        localStorage.setItem("colecao-lucre-com-charme-last-lesson", lastLesson);
       }
+      localStorage.setItem("colecao-lucre-com-charme-completed", JSON.stringify(Array.from(completedLessons)));
+    } catch (error) {
+      console.error("Falha ao salvar o progresso do curso:", error);
     }
-  }, [currentLesson, currentModule]);
+  }, [currentLesson, currentModule, completedLessons]);
 
   const handleLessonClick = (lesson: Lesson, module: Module) => {
     setCurrentLesson(lesson);
     setCurrentModule(module);
     setIsSheetOpen(false);
   };
+  
+  const findNextLesson = () => {
+      if (!currentModule || !currentLesson) return null;
+
+      const currentModuleIndex = courseData.findIndex(m => m.id === currentModule.id);
+      const currentLessonIndex = currentModule.lessons.findIndex(l => l.id === currentLesson.id);
+
+      // Next lesson in the same module
+      if (currentLessonIndex < currentModule.lessons.length - 1) {
+          const nextLesson = currentModule.lessons[currentLessonIndex + 1];
+          return { module: currentModule, lesson: nextLesson };
+      }
+      
+      // Next lesson is in the next module
+      if (currentModuleIndex < courseData.length - 1) {
+          const nextModule = courseData[currentModuleIndex + 1];
+          const nextLesson = nextModule.lessons[0];
+          return { module: nextModule, lesson: nextLesson };
+      }
+
+      return null; // Last lesson of the course
+  };
+
+  const nextLessonData = findNextLesson();
+
+  const handleNextLesson = () => {
+    if (currentLesson) {
+        setCompletedLessons(prev => new Set(prev).add(currentLesson.id));
+    }
+    if (nextLessonData) {
+        setCurrentModule(nextLessonData.module);
+        setCurrentLesson(nextLessonData.lesson);
+    }
+  };
 
   const SidebarContent = () => (
     <>
       <div className="flex flex-col h-full">
-        <div className="p-6 flex items-center gap-4">
-          <YarnIcon className="w-10 h-10 text-primary" />
-          <h1 className="text-4xl font-headline text-primary">Coleção Lucre com Charme</h1>
+        <div className="p-6 flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+                <YarnIcon className="w-10 h-10 text-primary" />
+                <h1 className="text-4xl font-headline text-primary">Coleção Lucre com Charme</h1>
+            </div>
+            <div className="space-y-2">
+                <Progress value={progressPercentage} className="h-2" />
+                <p className="text-xs text-center text-muted-foreground">{Math.round(progressPercentage)}% completo</p>
+            </div>
         </div>
         <ScrollArea className="flex-1">
           <Accordion type="single" collapsible defaultValue={currentModule?.id} className="w-full px-4">
@@ -93,14 +147,18 @@ export function CourseUI() {
                         variant="ghost"
                         onClick={() => handleLessonClick(lesson, module)}
                         className={cn(
-                          "justify-start gap-3 pl-4 transition-all duration-300",
+                          "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-2 leading-normal",
                           currentLesson?.id === lesson.id
                             ? "bg-accent text-accent-foreground font-bold"
                             : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
                         )}
                       >
-                        <PlayCircle className="w-5 h-5" />
-                        <span>{lesson.title}</span>
+                         {completedLessons.has(lesson.id) ? (
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          ) : (
+                            <PlayCircle className="w-5 h-5" />
+                          )}
+                        <span className="flex-1 text-left">{lesson.title}</span>
                       </Button>
                     ))}
                   </div>
@@ -125,7 +183,7 @@ export function CourseUI() {
 
       {/* Main Content */}
       <main className="flex-1 p-4 sm:p-6 lg:p-8">
-        <div className="lg:hidden flex items-center mb-4">
+        <div className="lg:hidden flex items-center justify-between mb-4">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -136,7 +194,7 @@ export function CourseUI() {
                    <SidebarContent />
                 </SheetContent>
             </Sheet>
-            <div className="ml-4 flex items-center gap-2">
+            <div className="flex items-center gap-2">
                 <YarnIcon className="w-6 h-6 text-primary" />
                 <h1 className="text-2xl font-headline text-primary">Coleção Lucre com Charme</h1>
             </div>
@@ -166,11 +224,17 @@ export function CourseUI() {
               </div>
               <div className="space-y-4">
                 <p className="text-foreground/80 leading-relaxed">{currentLesson.description}</p>
-                <Button asChild variant="link" className="p-0 h-auto text-base">
-                  <a href={`https://www.youtube.com/watch?v=${currentLesson.videoId}`} target="_blank" rel="noopener noreferrer">
-                    Assistir no YouTube <Youtube className="w-5 h-5 ml-2" />
-                  </a>
-                </Button>
+                {nextLessonData ? (
+                    <Button onClick={handleNextLesson} size="lg" className="w-full md:w-auto">
+                        Marcar como concluída e ir para a próxima aula
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                ) : (
+                    <Button onClick={() => setCompletedLessons(prev => new Set(prev).add(currentLesson.id))} size="lg" className="w-full md:w-auto" disabled={completedLessons.has(currentLesson.id)}>
+                        {completedLessons.has(currentLesson.id) ? 'Parabéns! Você concluiu o curso!' : 'Finalizar Curso'}
+                        <CheckCircle className="w-5 h-5 ml-2" />
+                    </Button>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -200,3 +264,5 @@ const LoadingState = () => (
         </CardContent>
     </Card>
 );
+
+    

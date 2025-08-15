@@ -1,3 +1,9 @@
+import { CourseUI } from "@/components/course-ui";
+
 export default function Home() {
-  return <></>;
+  return (
+    <main>
+      <CourseUI />
+    </main>
+  );
 }

@@ -20,6 +20,7 @@ export function CourseUI() {
   const [completedLessons, setCompletedLessons] = React.useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
+  const [showWelcome, setShowWelcome] = React.useState(false);
   
   const totalLessons = React.useMemo(() => courseData.reduce((acc, module) => acc + module.lessons.length, 0), []);
   const progressPercentage = totalLessons > 0 ? (completedLessons.size / totalLessons) * 100 : 0;
@@ -32,32 +33,27 @@ export function CourseUI() {
       
       let lessonToLoad: Lesson | null = null;
       let moduleToLoad: Module | null = null;
+      let welcomeScreen = true;
 
       if (savedLastLesson) {
         const { moduleId, lessonId } = JSON.parse(savedLastLesson);
         moduleToLoad = courseData.find((m) => m.id === moduleId) ?? null;
         if (moduleToLoad) {
           lessonToLoad = moduleToLoad.lessons.find((l) => l.id === lessonId) ?? null;
+          welcomeScreen = false;
         }
-      }
-
-      if (!lessonToLoad) {
-        moduleToLoad = courseData[0] ?? null;
-        lessonToLoad = moduleToLoad?.lessons[0] ?? null;
       }
       
       if (savedCompletedLessons) {
         setCompletedLessons(new Set(JSON.parse(savedCompletedLessons)));
       }
-
+      
+      setShowWelcome(welcomeScreen);
       setCurrentLesson(lessonToLoad);
       setCurrentModule(moduleToLoad);
     } catch (error) {
       console.error("Falha ao carregar o progresso do curso:", error);
-      const firstModule = courseData[0] ?? null;
-      const firstLesson = firstModule?.lessons[0] ?? null;
-      setCurrentLesson(firstLesson);
-      setCurrentModule(firstModule);
+      setShowWelcome(true);
     } finally {
       setIsLoading(false);
     }
@@ -83,6 +79,15 @@ export function CourseUI() {
     setCurrentLesson(lesson);
     setCurrentModule(module);
     setIsSheetOpen(false);
+    setShowWelcome(false);
+  };
+
+  const handleStartCourse = () => {
+    const firstModule = courseData[0] ?? null;
+    const firstLesson = firstModule?.lessons[0] ?? null;
+    if (firstLesson && firstModule) {
+        handleLessonClick(firstLesson, firstModule);
+    }
   };
   
   const findNextLesson = () => {
@@ -133,7 +138,7 @@ export function CourseUI() {
             </div>
         </div>
         <ScrollArea className="flex-1">
-          <Accordion type="single" collapsible defaultValue={currentModule?.id} className="w-full px-4">
+          <Accordion type="single" collapsible defaultValue={currentModule?.id ?? courseData[0]?.id} className="w-full px-4">
             {courseData.map((module) => (
               <AccordionItem value={module.id} key={module.id}>
                 <AccordionTrigger className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
@@ -202,6 +207,8 @@ export function CourseUI() {
         
         {isLoading ? (
           <LoadingState />
+        ) : showWelcome ? (
+            <WelcomeArea onStart={handleStartCourse} />
         ) : currentLesson ? (
           <Card className="h-full flex flex-col transition-all duration-500 animate-in fade-in">
             <CardHeader>
@@ -240,7 +247,7 @@ export function CourseUI() {
           </Card>
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p>Não foi possível carregar a lição.</p>
+            <p>Selecione uma aula para começar.</p>
           </div>
         )}
       </main>
@@ -265,4 +272,30 @@ const LoadingState = () => (
     </Card>
 );
 
-    
+const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
+    <div className="h-full flex items-center justify-center transition-all duration-500 animate-in fade-in">
+        <Card className="max-w-2xl w-full text-center shadow-2xl">
+            <CardHeader>
+                <div className="mx-auto bg-primary/10 rounded-full p-4 w-24 h-24 flex items-center justify-center border-4 border-primary/20">
+                    <YarnIcon className="w-16 h-16 text-primary" />
+                </div>
+                <CardTitle className="text-6xl font-headline text-primary mt-4">Seja Bem-Vinda!</CardTitle>
+                <CardDescription className="text-lg text-muted-foreground pt-2">
+                    à <span className="font-bold text-primary/90">Coleção Lucre com Charme</span>
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <p className="text-foreground/80 leading-relaxed text-lg">
+                    Estamos muito felizes em ter você aqui! Prepare-se para uma jornada incrível pelo mundo do crochê, onde você aprenderá a criar peças lindas e lucrativas com todo o charme que você merece.
+                </p>
+                <p className="text-foreground/80 leading-relaxed text-lg">
+                    Escolha uma aula no menu ao lado para continuar de onde parou ou clique no botão abaixo para iniciar sua primeira aula.
+                </p>
+                <Button onClick={onStart} size="lg" className="w-full md:w-auto mt-4 text-xl h-14 px-10">
+                    Começar a Crochetar Agora!
+                    <ArrowRight className="w-6 h-6 ml-3" />
+                </Button>
+            </CardContent>
+        </Card>
+    </div>
+);

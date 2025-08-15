@@ -21,7 +21,7 @@ export function CourseUI() {
 
   React.useEffect(() => {
     try {
-      const savedProgress = localStorage.getItem("charme-academy-progress");
+      const savedProgress = localStorage.getItem("colecao-lucre-com-charme-progress");
       let lessonToLoad: Lesson | null = null;
       let moduleToLoad: Module | null = null;
 
@@ -41,7 +41,7 @@ export function CourseUI() {
       setCurrentLesson(lessonToLoad);
       setCurrentModule(moduleToLoad);
     } catch (error) {
-      console.error("Failed to load course progress:", error);
+      console.error("Falha ao carregar o progresso do curso:", error);
       const firstModule = courseData[0] ?? null;
       const firstLesson = firstModule?.lessons[0] ?? null;
       setCurrentLesson(firstLesson);
@@ -58,9 +58,9 @@ export function CourseUI() {
           moduleId: currentModule.id,
           lessonId: currentLesson.id,
         });
-        localStorage.setItem("charme-academy-progress", progress);
+        localStorage.setItem("colecao-lucre-com-charme-progress", progress);
       } catch (error) {
-        console.error("Failed to save course progress:", error);
+        console.error("Falha ao salvar o progresso do curso:", error);
       }
     }
   }, [currentLesson, currentModule]);
@@ -68,50 +68,52 @@ export function CourseUI() {
   const handleLessonClick = (lesson: Lesson, module: Module) => {
     setCurrentLesson(lesson);
     setCurrentModule(module);
-    setIsSheetOpen(false); // Close sheet on mobile after selection
+    setIsSheetOpen(false);
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      <div className="p-6 flex items-center gap-4">
-        <YarnIcon className="w-10 h-10 text-primary" />
-        <h1 className="text-4xl font-headline text-primary">Charme Academy</h1>
+    <>
+      <div className="flex flex-col h-full">
+        <div className="p-6 flex items-center gap-4">
+          <YarnIcon className="w-10 h-10 text-primary" />
+          <h1 className="text-4xl font-headline text-primary">Coleção Lucre com Charme</h1>
+        </div>
+        <ScrollArea className="flex-1">
+          <Accordion type="single" collapsible defaultValue={currentModule?.id} className="w-full px-4">
+            {courseData.map((module) => (
+              <AccordionItem value={module.id} key={module.id}>
+                <AccordionTrigger className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+                  {module.title}
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex flex-col gap-2 pt-2">
+                    {module.lessons.map((lesson) => (
+                      <Button
+                        key={lesson.id}
+                        variant="ghost"
+                        onClick={() => handleLessonClick(lesson, module)}
+                        className={cn(
+                          "justify-start gap-3 pl-4 transition-all duration-300",
+                          currentLesson?.id === lesson.id
+                            ? "bg-accent text-accent-foreground font-bold"
+                            : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+                        )}
+                      >
+                        <PlayCircle className="w-5 h-5" />
+                        <span>{lesson.title}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </ScrollArea>
+        <div className="p-4 border-t">
+          <p className="text-xs text-muted-foreground text-center">Feito à mão com ♡ para criadores apaixonados.</p>
+        </div>
       </div>
-      <ScrollArea className="flex-1">
-        <Accordion type="single" collapsible defaultValue={currentModule?.id} className="w-full px-4">
-          {courseData.map((module) => (
-            <AccordionItem value={module.id} key={module.id}>
-              <AccordionTrigger className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
-                {module.title}
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="flex flex-col gap-2 pt-2">
-                  {module.lessons.map((lesson) => (
-                    <Button
-                      key={lesson.id}
-                      variant="ghost"
-                      onClick={() => handleLessonClick(lesson, module)}
-                      className={cn(
-                        "justify-start gap-3 pl-4 transition-all duration-300",
-                        currentLesson?.id === lesson.id
-                          ? "bg-accent text-accent-foreground font-bold"
-                          : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
-                      )}
-                    >
-                      <PlayCircle className="w-5 h-5" />
-                      <span>{lesson.title}</span>
-                    </Button>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </ScrollArea>
-      <div className="p-4 border-t">
-         <p className="text-xs text-muted-foreground text-center">Handcrafted with ♡ for passionate creators.</p>
-      </div>
-    </div>
+    </>
   );
 
   return (
@@ -136,7 +138,7 @@ export function CourseUI() {
             </Sheet>
             <div className="ml-4 flex items-center gap-2">
                 <YarnIcon className="w-6 h-6 text-primary" />
-                <h1 className="text-2xl font-headline text-primary">Charme Academy</h1>
+                <h1 className="text-2xl font-headline text-primary">Coleção Lucre com Charme</h1>
             </div>
         </div>
         
@@ -166,7 +168,7 @@ export function CourseUI() {
                 <p className="text-foreground/80 leading-relaxed">{currentLesson.description}</p>
                 <Button asChild variant="link" className="p-0 h-auto text-base">
                   <a href={`https://www.youtube.com/watch?v=${currentLesson.videoId}`} target="_blank" rel="noopener noreferrer">
-                    Watch on YouTube <Youtube className="w-5 h-5 ml-2" />
+                    Assistir no YouTube <Youtube className="w-5 h-5 ml-2" />
                   </a>
                 </Button>
               </div>
@@ -174,7 +176,7 @@ export function CourseUI() {
           </Card>
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p>Could not load lesson.</p>
+            <p>Não foi possível carregar a lição.</p>
           </div>
         )}
       </main>

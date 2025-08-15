@@ -14,48 +14,48 @@ export interface Module {
 export const courseData: Module[] = [
   {
     id: "module-1",
-    title: "Crochet Fundamentals",
+    title: "Fundamentos do Crochê",
     lessons: [
       {
         id: "lesson-1-1",
-        title: "Choosing Your First Hook & Yarn",
-        description: "Welcome to the wonderful world of crochet! In this first lesson, we'll guide you through selecting the perfect yarn and crochet hook to start your journey. We'll cover different materials, weights, and sizes to ensure you have the best tools for success.",
+        title: "Escolhendo sua Primeira Agulha e Fio",
+        description: "Bem-vindo ao maravilhoso mundo do crochê! Nesta primeira aula, vamos guiá-lo na seleção do fio e da agulha de crochê perfeitos para iniciar sua jornada. Abordaremos diferentes materiais, espessuras e tamanhos para garantir que você tenha as melhores ferramentas para o sucesso.",
         videoId: "aAxGTnVNJiE",
       },
       {
         id: "lesson-1-2",
-        title: "Mastering the Slip Knot & Chain Stitch",
-        description: "Every crochet project begins with these two fundamental techniques. Learn how to create a secure slip knot and practice making even, consistent chain stitches. This is the foundation upon which all other stitches are built!",
+        title: "Dominando o Nó Corrediço e a Correntinha",
+        description: "Todo projeto de crochê começa com essas duas técnicas fundamentais. Aprenda a criar um nó corrediço seguro e pratique fazer correntinhas uniformes e consistentes. Esta é a base sobre a qual todos os outros pontos são construídos!",
         videoId: "PSi7r5Tih3s",
       },
     ],
   },
   {
     id: "module-2",
-    title: "Basic Stitches",
+    title: "Pontos Básicos",
     lessons: [
       {
         id: "lesson-2-1",
-        title: "The Single Crochet (sc)",
-        description: "Discover the single crochet, one of the most versatile and common stitches. We'll break it down step-by-step, helping you create a dense, sturdy fabric perfect for amigurumi, washcloths, and more.",
+        title: "O Ponto Baixo (pb)",
+        description: "Descubra o ponto baixo, um dos pontos mais versáteis e comuns. Vamos detalhá-lo passo a passo, ajudando você a criar um tecido denso e firme, perfeito para amigurumi, toalhinhas e muito mais.",
         videoId: "--_yIe2S0kU",
       },
       {
         id: "lesson-2-2",
-        title: "The Half Double & Double Crochet (hdc, dc)",
-        description: "Ready to add some height to your projects? Learn the half double crochet and double crochet stitches. These taller stitches work up quickly and create a softer, more flexible fabric ideal for blankets and scarves.",
+        title: "O Meio Ponto Alto e o Ponto Alto (mpa, pa)",
+        description: "Pronto para adicionar um pouco de altura aos seus projetos? Aprenda o meio ponto alto e o ponto alto. Esses pontos mais altos são trabalhados rapidamente e criam um tecido mais macio e flexível, ideal para cobertores e cachecóis.",
         videoId: "GcOzdAzmtNM",
       },
     ],
   },
   {
     id: "module-3",
-    title: "Your First Project: A Simple Scarf",
+    title: "Seu Primeiro Projeto: Um Cachecol Simples",
     lessons: [
       {
         id: "lesson-3-1",
-        title: "Putting It All Together",
-        description: "Let's combine your new skills to create a beautiful, simple scarf! This lesson will guide you through starting the project, working in rows, and keeping your edges straight. You'll be amazed at how quickly it comes together.",
+        title: "Juntando Tudo",
+        description: "Vamos combinar suas novas habilidades para criar um cachecol lindo e simples! Esta aula irá guiá-lo para iniciar o projeto, trabalhar em carreiras e manter as bordas retas. Você ficará surpreso com a rapidez com que ele toma forma.",
         videoId: "l_uTCQWyh-I",
       },
     ],

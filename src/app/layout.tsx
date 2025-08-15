@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Coleção Lucre com Charme',
+  title: 'Área de Membros - Coleção Lucre com Charme',
   description: 'Aprenda a fazer crochê com paixão e estilo.',
 };
 

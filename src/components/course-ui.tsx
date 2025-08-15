@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, PlayCircle, Menu, CheckCircle, ArrowRight } from "lucide-react";
+import { BookOpen, PlayCircle, Menu, CheckCircle, ArrowRight, Home } from "lucide-react";
 
 import { courseData, type Lesson, type Module } from "@/data/course";
 import { cn } from "@/lib/utils";
@@ -68,6 +68,9 @@ export function CourseUI() {
           lessonId: currentLesson.id,
         });
         localStorage.setItem("colecao-lucre-com-charme-last-lesson", lastLesson);
+      } else {
+        // Clear last lesson if we are on the welcome screen
+        localStorage.removeItem("colecao-lucre-com-charme-last-lesson");
       }
       localStorage.setItem("colecao-lucre-com-charme-completed", JSON.stringify(Array.from(completedLessons)));
     } catch (error) {
@@ -90,6 +93,13 @@ export function CourseUI() {
     }
   };
   
+  const handleHomeClick = () => {
+    setShowWelcome(true);
+    setCurrentLesson(null);
+    setCurrentModule(null);
+    setIsSheetOpen(false);
+  };
+
   const findNextLesson = () => {
       if (!currentModule || !currentLesson) return null;
 
@@ -136,6 +146,21 @@ export function CourseUI() {
                 <Progress value={progressPercentage} className="h-2" />
                 <p className="text-xs text-center text-muted-foreground">{Math.round(progressPercentage)}% completo</p>
             </div>
+        </div>
+        <div className="px-4 pb-2">
+            <Button
+                variant="ghost"
+                onClick={handleHomeClick}
+                className={cn(
+                    "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
+                    showWelcome
+                    ? "bg-accent text-accent-foreground font-bold"
+                    : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+                )}
+            >
+                <Home className="w-5 h-5" />
+                <span className="flex-1 text-left">Início</span>
+            </Button>
         </div>
         <ScrollArea className="flex-1">
           <Accordion type="single" collapsible defaultValue={currentModule?.id ?? courseData[0]?.id} className="w-full px-4">

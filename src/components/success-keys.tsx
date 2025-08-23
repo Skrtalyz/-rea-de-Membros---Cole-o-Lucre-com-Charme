@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
-interface SuccessKeyItem {
+export interface SuccessKeyItem {
   slug: string;
   title: string;
   subtitle: string;
@@ -22,7 +22,7 @@ interface SuccessKeyItem {
   imageAlt: string;
 }
 
-const successKeyItems: SuccessKeyItem[] = [
+export const successKeyItems: SuccessKeyItem[] = [
   {
     slug: "primeira-venda-48h",
     title: "Primeira Venda em 48h",
@@ -77,20 +77,13 @@ const successKeyItems: SuccessKeyItem[] = [
   },
 ];
 
-const constructCheckoutUrl = (baseUrl: string, slug: string) => {
+export const constructCheckoutUrl = (baseUrl: string, slug: string) => {
   return `${baseUrl}?src=membros&upsell=${slug}`;
 }
 
-export function SuccessKeys() {
-  return (
-    <div className="flex flex-col gap-6 animate-in fade-in">
-        <div className="flex flex-col gap-2 text-center">
-            <h1 className="text-5xl font-headline text-primary">🔑 Chaves do Sucesso Rápido</h1>
-            <p className="text-lg text-muted-foreground">Itens opcionais para acelerar seus resultados. Adicione quando quiser.</p>
-        </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {successKeyItems.map((item) => (
-          <Card key={item.slug} className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+export function SuccessKeyCard({ item }: { item: SuccessKeyItem }) {
+    return (
+        <Card className="flex flex-col h-full text-left shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
             <div className="relative w-full aspect-square">
                 <Image
                     src={item.imageUrl}
@@ -100,10 +93,10 @@ export function SuccessKeys() {
                 />
             </div>
             <CardHeader className="flex-row items-start gap-4 space-y-0">
-                <span className="text-4xl">{item.icon}</span>
+                <span className="text-4xl mt-1">{item.icon}</span>
                 <div className="flex-1">
-                    <CardTitle className="text-2xl font-bold text-foreground">{item.title}</CardTitle>
-                    <CardDescription className="text-base text-muted-foreground">{item.subtitle}</CardDescription>
+                    <CardTitle className="text-xl font-bold text-foreground leading-tight">{item.title}</CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground">{item.subtitle}</CardDescription>
                 </div>
                 {item.badge && (
                 <Badge variant={item.badge.variant} className="whitespace-nowrap">
@@ -111,14 +104,14 @@ export function SuccessKeys() {
                 </Badge>
                 )}
             </CardHeader>
-            <CardContent className="flex flex-col flex-1 justify-between gap-4">
-                <div className="text-center bg-primary/10 py-3 rounded-lg">
-                    <p className="text-2xl text-primary font-bold">+ R$ {item.price}</p>
+            <CardContent className="flex flex-col flex-1 justify-between gap-4 pt-0">
+                <div className="text-center bg-primary/10 py-2 rounded-lg">
+                    <p className="text-xl text-primary font-bold">+ R$ {item.price}</p>
                 </div>
               <Button
                 asChild
                 size="lg"
-                className="w-full text-lg h-12"
+                className="w-full text-md h-11"
               >
                 <a
                   href={constructCheckoutUrl(item.checkoutUrl, item.slug)}
@@ -131,6 +124,19 @@ export function SuccessKeys() {
               </Button>
             </CardContent>
           </Card>
+    )
+}
+
+export function SuccessKeys() {
+  return (
+    <div className="flex flex-col gap-6 animate-in fade-in">
+        <div className="flex flex-col gap-2 text-center">
+            <h1 className="text-5xl font-headline text-primary">🔑 Chaves do Sucesso Rápido</h1>
+            <p className="text-lg text-muted-foreground">Itens opcionais para acelerar seus resultados. Adicione quando quiser.</p>
+        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {successKeyItems.map((item) => (
+          <SuccessKeyCard item={item} key={item.slug} />
         ))}
       </div>
     </div>

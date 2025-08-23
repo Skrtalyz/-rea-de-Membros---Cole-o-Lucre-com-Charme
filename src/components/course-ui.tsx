@@ -13,7 +13,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { YarnIcon } from "@/components/icons";
-import { SuccessKeys } from "@/components/success-keys";
+import { SuccessKeys, SuccessKeyCard, successKeyItems } from "@/components/success-keys";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Separator } from "@/components/ui/separator";
 
 type ActiveView = "welcome" | "course" | "success-keys";
 
@@ -289,7 +291,7 @@ export function CourseUI() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-hidden">
         <div className="lg:hidden flex items-center justify-between mb-4">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
@@ -331,8 +333,8 @@ const LoadingState = () => (
 
 const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
     <div className="h-full flex items-center justify-center transition-all duration-500 animate-in fade-in">
-        <Card className="max-w-2xl w-full text-center shadow-2xl">
-            <CardHeader>
+        <Card className="max-w-4xl w-full shadow-2xl">
+            <CardHeader className="text-center">
                 <div className="mx-auto bg-primary/10 rounded-full p-4 w-24 h-24 flex items-center justify-center border-4 border-primary/20">
                     <YarnIcon className="w-16 h-16 text-primary" />
                 </div>
@@ -341,17 +343,48 @@ const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
                     à <span className="font-bold text-primary/90">Coleção Lucre com Charme</span>
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-                <p className="text-foreground/80 leading-relaxed text-lg">
+            <CardContent className="space-y-6 text-center">
+                <p className="text-foreground/80 leading-relaxed text-lg max-w-2xl mx-auto">
                     Estamos muito felizes em ter você aqui! Prepare-se para uma jornada incrível pelo mundo do crochê, onde você aprenderá a criar peças lindas e lucrativas com todo o charme que você merece.
                 </p>
-                <p className="text-foreground/80 leading-relaxed text-lg">
+                <p className="text-foreground/80 leading-relaxed text-lg max-w-2xl mx-auto">
                     Escolha uma aula no menu ao lado para continuar de onde parou ou clique no botão abaixo para iniciar sua primeira aula.
                 </p>
                 <Button onClick={onStart} size="lg" className="w-full md:w-auto mt-4 text-xl h-14 px-10">
                     Começar a Crochetar Agora!
                     <ArrowRight className="w-6 h-6 ml-3" />
                 </Button>
+                
+                <Separator className="my-8"/>
+
+                <div className="space-y-4">
+                    <h2 className="text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
+                        🔑 <span className="font-headline text-5xl">Chaves do Sucesso Rápido</span>
+                    </h2>
+                    <p className="text-muted-foreground max-w-2xl mx-auto">
+                        Itens opcionais para acelerar seus resultados. Adicione quando quiser.
+                    </p>
+                </div>
+
+                <Carousel
+                    opts={{
+                    align: "start",
+                    loop: true,
+                    }}
+                    className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-xl xl:max-w-3xl mx-auto"
+                >
+                    <CarouselContent className="-ml-4">
+                    {successKeyItems.map((item) => (
+                        <CarouselItem key={item.slug} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                            <div className="p-1">
+                                <SuccessKeyCard item={item} />
+                            </div>
+                        </CarouselItem>
+                    ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="hidden sm:flex" />
+                    <CarouselNext className="hidden sm:flex" />
+                </Carousel>
             </CardContent>
         </Card>
     </div>

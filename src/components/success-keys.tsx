@@ -4,8 +4,7 @@ import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import Image from "next/image";
 
 interface SuccessKeyItem {
   slug: string;
@@ -19,6 +18,8 @@ interface SuccessKeyItem {
   };
   checkoutUrl: string;
   icon: string;
+  imageUrl: string;
+  imageAlt: string;
 }
 
 const successKeyItems: SuccessKeyItem[] = [
@@ -30,6 +31,8 @@ const successKeyItems: SuccessKeyItem[] = [
     badge: { text: "Mais vendido", variant: "default" },
     checkoutUrl: "[LINK_CHECKOUT_48H]",
     icon: "🥇",
+    imageUrl: "https://i.postimg.cc/QCHsx1c5/Whisk-039fa9cfba.jpg",
+    imageAlt: "Imagem do produto Primeira Venda em 48h",
   },
   {
     slug: "mensagem-secreta-pix",
@@ -39,6 +42,8 @@ const successKeyItems: SuccessKeyItem[] = [
     badge: { text: "Recomendado", variant: "secondary" },
     checkoutUrl: "[LINK_CHECKOUT_PIX]",
     icon: "⭐",
+    imageUrl: "https://i.postimg.cc/vZRMb1Tg/Whisk-a7fa729a79.jpg",
+    imageAlt: "Imagem do produto Mensagem Secreta do PIX",
   },
   {
     slug: "lista-100-pecas",
@@ -47,6 +52,8 @@ const successKeyItems: SuccessKeyItem[] = [
     price: "9,90",
     checkoutUrl: "[LINK_CHECKOUT_100PECAS]",
     icon: "📜",
+    imageUrl: "https://i.postimg.cc/QN1ZS80j/Whisk-3484845323.jpg",
+    imageAlt: "Imagem do produto Lista de 100 Peças que Vendem o Ano Todo",
   },
   {
     slug: "combo-moldes-rapidos",
@@ -55,6 +62,8 @@ const successKeyItems: SuccessKeyItem[] = [
     price: "9,90",
     checkoutUrl: "[LINK_CHECKOUT_MOLDES]",
     icon: "⚡️",
+    imageUrl: "https://i.postimg.cc/6pHkTy5f/Whisk-feb9085671.jpg",
+    imageAlt: "Imagem do produto Combo de Moldes Rápidos",
   },
   {
     slug: "agenda-1000-reais",
@@ -63,6 +72,8 @@ const successKeyItems: SuccessKeyItem[] = [
     price: "6,99",
     checkoutUrl: "[LINK_CHECKOUT_AGENDA]",
     icon: "🗓️",
+    imageUrl: "https://i.postimg.cc/kGdZLSfq/Whisk-ec323b3d19.jpg",
+    imageAlt: "Imagem do produto Agenda dos R$1.000 em 30 Dias",
   },
 ];
 
@@ -77,9 +88,17 @@ export function SuccessKeys() {
             <h1 className="text-5xl font-headline text-primary">🔑 Chaves do Sucesso Rápido</h1>
             <p className="text-lg text-muted-foreground">Itens opcionais para acelerar seus resultados. Adicione quando quiser.</p>
         </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {successKeyItems.map((item) => (
-          <Card key={item.slug} className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300">
+          <Card key={item.slug} className="flex flex-col shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+            <div className="relative w-full aspect-video">
+                <Image
+                    src={item.imageUrl}
+                    alt={item.imageAlt}
+                    layout="fill"
+                    objectFit="cover"
+                />
+            </div>
             <CardHeader className="flex-row items-start gap-4 space-y-0">
                 <span className="text-4xl">{item.icon}</span>
                 <div className="flex-1">

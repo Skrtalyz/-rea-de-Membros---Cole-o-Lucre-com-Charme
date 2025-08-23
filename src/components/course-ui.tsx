@@ -332,7 +332,7 @@ const LoadingState = () => (
 );
 
 const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
-    <div className="h-full flex items-center justify-center transition-all duration-500 animate-in fade-in">
+    <div className="h-full flex flex-col items-center justify-center transition-all duration-500 animate-in fade-in">
         <Card className="max-w-4xl w-full shadow-2xl">
             <CardHeader className="text-center">
                 <div className="mx-auto bg-primary/10 rounded-full p-4 w-24 h-24 flex items-center justify-center border-4 border-primary/20">
@@ -365,27 +365,30 @@ const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
                         Itens opcionais para acelerar seus resultados. Adicione quando quiser.
                     </p>
                 </div>
-
-                <Carousel
-                    opts={{
-                    align: "start",
-                    loop: true,
-                    }}
-                    className="w-full max-w-xs sm:max-w-sm md:max-w-lg lg:max-w-xl xl:max-w-3xl mx-auto"
-                >
-                    <CarouselContent className="-ml-4">
-                    {successKeyItems.map((item) => (
-                        <CarouselItem key={item.slug} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                            <div className="p-1">
-                                <SuccessKeyCard item={item} />
-                            </div>
-                        </CarouselItem>
-                    ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="hidden sm:flex" />
-                    <CarouselNext className="hidden sm:flex" />
-                </Carousel>
+                 <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <Carousel
+                        opts={{
+                            align: "start",
+                            loop: true,
+                        }}
+                        className="w-full"
+                    >
+                        <CarouselContent className="-ml-4">
+                        {successKeyItems.map((item) => (
+                            <CarouselItem key={item.slug} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3">
+                                <div className="p-1">
+                                    <SuccessKeyCard item={item} />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                        </CarouselContent>
+                        <CarouselPrevious className="hidden sm:flex" />
+                        <CarouselNext className="hidden sm:flex" />
+                    </Carousel>
+                </div>
             </CardContent>
         </Card>
     </div>
 );
+
+    

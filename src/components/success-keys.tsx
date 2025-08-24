@@ -131,10 +131,10 @@ export function SuccessKeys() {
   return (
     <div className="flex flex-col gap-6 animate-in fade-in">
         <div className="flex flex-col gap-2 text-center">
-            <h1 className="text-5xl font-headline text-primary">🔑 Chaves do Sucesso Rápido</h1>
-            <p className="text-lg text-muted-foreground">Itens opcionais para acelerar seus resultados. Adicione quando quiser.</p>
+            <h1 className="text-4xl sm:text-5xl font-headline text-primary">🔑 Chaves do Sucesso Rápido</h1>
+            <p className="text-md sm:text-lg text-muted-foreground">Itens opcionais para acelerar seus resultados. Adicione quando quiser.</p>
         </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {successKeyItems.map((item) => (
           <SuccessKeyCard item={item} key={item.slug} />
         ))}

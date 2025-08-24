@@ -237,7 +237,7 @@ export function CourseUI() {
             <div className="h-full flex flex-col gap-8 transition-all duration-500 animate-in fade-in overflow-y-auto">
               <Card className="flex flex-col">
                 <CardHeader>
-                  <CardTitle className="text-5xl font-headline text-primary">{currentLesson.title}</CardTitle>
+                  <CardTitle className="text-3xl sm:text-4xl md:text-5xl font-headline text-primary">{currentLesson.title}</CardTitle>
                   <CardDescription className="flex items-center gap-2 pt-2 text-base">
                     <BookOpen className="w-5 h-5 text-primary/70" />
                     <span>{currentModule?.title}</span>
@@ -274,26 +274,26 @@ export function CourseUI() {
               <div className="space-y-4">
                   <Separator />
                   <div className="space-y-2 text-center">
-                    <h2 className="text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
-                        <span className="font-headline text-5xl">Acelere Seus Resultados</span> 🔑
+                    <h2 className="text-2xl sm:text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
+                        <span className="font-headline text-4xl sm:text-5xl">Acelere Seus Resultados</span> 🔑
                     </h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
                         Itens opcionais para turbinar seu aprendizado. Adicione quando quiser.
                     </p>
                   </div>
-                  <div className="w-full max-w-5xl mx-auto px-4 sm:px-12">
+                  <div className="w-full max-w-5xl mx-auto px-10 sm:px-12">
                       <Carousel opts={{ align: "start", loop: true, }} className="w-full">
                           <CarouselContent className="-ml-4">
                           {successKeyItems.map((item) => (
-                              <CarouselItem key={item.slug} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3">
+                              <CarouselItem key={item.slug} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                                   <div className="p-1">
                                       <SuccessKeyCard item={item} />
                                   </div>
                               </CarouselItem>
                           ))}
                           </CarouselContent>
-                          <CarouselPrevious className="hidden sm:flex" />
-                          <CarouselNext className="hidden sm:flex" />
+                          <CarouselPrevious />
+                          <CarouselNext />
                       </Carousel>
                   </div>
               </div>
@@ -332,7 +332,7 @@ export function CourseUI() {
             </Sheet>
             <div className="flex items-center gap-2">
                 <YarnIcon className="w-6 h-6 text-primary" />
-                <h1 className="text-2xl font-headline text-primary">Coleção Lucre com Charme</h1>
+                <h1 className="text-xl sm:text-2xl font-headline text-primary">Coleção Lucre com Charme</h1>
             </div>
         </div>
         {renderContent()}
@@ -361,32 +361,32 @@ const LoadingState = () => (
 const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
     <div className="h-full flex flex-col items-center justify-center transition-all duration-500 animate-in fade-in">
         <Card className="max-w-4xl w-full shadow-2xl">
-            <CardHeader className="text-center">
+            <CardHeader className="text-center px-4 sm:px-6">
                 <div className="mx-auto bg-primary/10 rounded-full p-4 w-24 h-24 flex items-center justify-center border-4 border-primary/20">
                     <YarnIcon className="w-16 h-16 text-primary" />
                 </div>
-                <CardTitle className="text-6xl font-headline text-primary mt-4">Seja Bem-Vinda!</CardTitle>
-                <CardDescription className="text-lg text-muted-foreground pt-2">
+                <CardTitle className="text-4xl sm:text-5xl md:text-6xl font-headline text-primary mt-4">Seja Bem-Vinda!</CardTitle>
+                <CardDescription className="text-md sm:text-lg text-muted-foreground pt-2">
                     à <span className="font-bold text-primary/90">Coleção Lucre com Charme</span>
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6 text-center">
-                <p className="text-foreground/80 leading-relaxed text-lg max-w-2xl mx-auto">
+            <CardContent className="space-y-6 text-center px-4 sm:px-6">
+                <p className="text-foreground/80 leading-relaxed text-md sm:text-lg max-w-2xl mx-auto">
                     Estamos muito felizes em ter você aqui! Prepare-se para uma jornada incrível pelo mundo do crochê, onde você aprenderá a criar peças lindas e lucrativas com todo o charme que você merece.
                 </p>
-                <p className="text-foreground/80 leading-relaxed text-lg max-w-2xl mx-auto">
+                <p className="text-foreground/80 leading-relaxed text-md sm:text-lg max-w-2xl mx-auto">
                     Escolha uma aula no menu ao lado para continuar de onde parou ou clique no botão abaixo para iniciar sua primeira aula.
                 </p>
-                <Button onClick={onStart} size="lg" className="w-full md:w-auto mt-4 text-xl h-14 px-10">
+                <Button onClick={onStart} size="lg" className="w-full md:w-auto mt-4 text-lg sm:text-xl h-auto py-3 sm:h-14 px-8 sm:px-10">
                     Começar a Crochetar Agora!
-                    <ArrowRight className="w-6 h-6 ml-3" />
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-3" />
                 </Button>
                 
                 <Separator className="my-8"/>
 
                 <div className="space-y-4">
-                    <h2 className="text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
-                        🔑 <span className="font-headline text-5xl">Chaves do Sucesso Rápido</span>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
+                        🔑 <span className="font-headline text-4xl sm:text-5xl">Chaves do Sucesso Rápido</span>
                     </h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
                         Itens opcionais para acelerar seus resultados. Adicione quando quiser.
@@ -402,20 +402,18 @@ const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
                     >
                         <CarouselContent className="-ml-4">
                         {successKeyItems.map((item) => (
-                            <CarouselItem key={item.slug} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3">
+                            <CarouselItem key={item.slug} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
                                 <div className="p-1">
                                     <SuccessKeyCard item={item} />
                                 </div>
                             </CarouselItem>
                         ))}
                         </CarouselContent>
-                        <CarouselPrevious className="hidden sm:flex" />
-                        <CarouselNext className="hidden sm:flex" />
+                        <CarouselPrevious />
+                        <CarouselNext />
                     </Carousel>
                 </div>
             </CardContent>
         </Card>
     </div>
 );
-
-    

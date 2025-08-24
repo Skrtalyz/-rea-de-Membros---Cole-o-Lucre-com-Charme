@@ -142,86 +142,84 @@ export function CourseUI() {
   };
 
   const SidebarContent = () => (
-    <>
-      <div className="flex flex-col h-full">
-        <div className="p-6 flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-                <YarnIcon className="w-10 h-10 text-primary" />
-                <h1 className="text-4xl font-headline text-primary">Coleção Lucre com Charme</h1>
-            </div>
-            <div className="space-y-2">
-                <Progress value={progressPercentage} className="h-2" />
-                <p className="text-xs text-center text-muted-foreground">{Math.round(progressPercentage)}% completo</p>
-            </div>
-        </div>
-        <div className="px-4 pb-2 space-y-2">
-            <Button
-                variant="ghost"
-                onClick={handleHomeClick}
-                className={cn(
-                    "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
-                    activeView === 'welcome'
-                    ? "bg-accent text-accent-foreground font-bold"
-                    : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
-                )}
-            >
-                <Home className="w-5 h-5" />
-                <span className="flex-1 text-left">Início</span>
-            </Button>
-            <Button
-                variant="ghost"
-                onClick={handleSuccessKeysClick}
-                className={cn(
-                    "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
-                    activeView === 'success-keys'
-                    ? "bg-accent text-accent-foreground font-bold"
-                    : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
-                )}
-            >
-                <KeyRound className="w-5 h-5" />
-                <span className="flex-1 text-left">Chaves do Sucesso Rápido</span>
-            </Button>
-        </div>
-        <ScrollArea className="flex-1">
-          <Accordion type="single" collapsible defaultValue={currentModule?.id ?? courseData[0]?.id} className="w-full px-4">
-            {courseData.map((module) => (
-              <AccordionItem value={module.id} key={module.id}>
-                <AccordionTrigger className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
-                  {module.title}
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-col gap-2 pt-2">
-                    {module.lessons.map((lesson) => (
-                      <Button
-                        key={lesson.id}
-                        variant="ghost"
-                        onClick={() => handleLessonClick(lesson, module)}
-                        className={cn(
-                          "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-2 leading-normal",
-                          activeView === 'course' && currentLesson?.id === lesson.id
-                            ? "bg-accent text-accent-foreground font-bold"
-                            : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
-                        )}
-                      >
-                         {completedLessons.has(lesson.id) ? (
-                            <CheckCircle className="w-5 h-5 text-green-500" />
-                          ) : (
-                            <PlayCircle className="w-5 h-5" />
-                          )}
-                        <span className="flex-1 text-left">{lesson.title}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </ScrollArea>
-        <div className="p-4 border-t">
-          <p className="text-xs text-muted-foreground text-center">Feito à mão com ♡ para criadores apaixonados.</p>
-        </div>
+    <div className="flex flex-col h-full">
+      <div className="p-6 flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+              <YarnIcon className="w-10 h-10 text-primary" />
+              <h1 className="text-4xl font-headline text-primary">Coleção Lucre com Charme</h1>
+          </div>
+          <div className="space-y-2">
+              <Progress value={progressPercentage} className="h-2" />
+              <p className="text-xs text-center text-muted-foreground">{Math.round(progressPercentage)}% completo</p>
+          </div>
       </div>
-    </>
+      <div className="px-4 pb-2 space-y-2">
+          <Button
+              variant="ghost"
+              onClick={handleHomeClick}
+              className={cn(
+                  "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
+                  activeView === 'welcome'
+                  ? "bg-accent text-accent-foreground font-bold"
+                  : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+              )}
+          >
+              <Home className="w-5 h-5" />
+              <span className="flex-1 text-left">Início</span>
+          </Button>
+          <Button
+              variant="ghost"
+              onClick={handleSuccessKeysClick}
+              className={cn(
+                  "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
+                  activeView === 'success-keys'
+                  ? "bg-accent text-accent-foreground font-bold"
+                  : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+              )}
+          >
+              <KeyRound className="w-5 h-5" />
+              <span className="flex-1 text-left">Chaves do Sucesso Rápido</span>
+          </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <Accordion type="single" collapsible defaultValue={currentModule?.id ?? courseData[0]?.id} className="w-full px-4">
+          {courseData.map((module) => (
+            <AccordionItem value={module.id} key={module.id}>
+              <AccordionTrigger className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+                {module.title}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="flex flex-col gap-2 pt-2">
+                  {module.lessons.map((lesson) => (
+                    <Button
+                      key={lesson.id}
+                      variant="ghost"
+                      onClick={() => handleLessonClick(lesson, module)}
+                      className={cn(
+                        "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-2 leading-normal",
+                        activeView === 'course' && currentLesson?.id === lesson.id
+                          ? "bg-accent text-accent-foreground font-bold"
+                          : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+                      )}
+                    >
+                       {completedLessons.has(lesson.id) ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <PlayCircle className="w-5 h-5" />
+                        )}
+                      <span className="flex-1 text-left">{lesson.title}</span>
+                    </Button>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </ScrollArea>
+      <div className="p-4 border-t">
+        <p className="text-xs text-muted-foreground text-center">Feito à mão com ♡ para criadores apaixonados.</p>
+      </div>
+    </div>
   );
 
   const renderContent = () => {
@@ -283,7 +281,7 @@ export function CourseUI() {
                         Itens opcionais para turbinar seu aprendizado. Adicione quando quiser.
                     </p>
                   </div>
-                  <div className="w-full max-w-5xl mx-auto">
+                  <div className="w-full max-w-5xl mx-auto px-4 sm:px-12">
                       <Carousel opts={{ align: "start", loop: true, }} className="w-full">
                           <CarouselContent className="-ml-4">
                           {successKeyItems.map((item) => (
@@ -394,7 +392,7 @@ const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
                         Itens opcionais para acelerar seus resultados. Adicione quando quiser.
                     </p>
                 </div>
-                 <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                 <div className="w-full max-w-5xl mx-auto px-4 sm:px-12">
                     <Carousel
                         opts={{
                             align: "start",

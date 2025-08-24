@@ -236,41 +236,70 @@ export function CourseUI() {
       case "course":
         if (currentLesson) {
           return (
-            <Card className="h-full flex flex-col transition-all duration-500 animate-in fade-in">
-              <CardHeader>
-                <CardTitle className="text-5xl font-headline text-primary">{currentLesson.title}</CardTitle>
-                <CardDescription className="flex items-center gap-2 pt-2 text-base">
-                  <BookOpen className="w-5 h-5 text-primary/70" />
-                  <span>{currentModule?.title}</span>
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col gap-6">
-                <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg border">
-                  <iframe
-                    key={currentLesson.id}
-                    className="w-full h-full"
-                    src={`https://www.youtube.com/embed/${currentLesson.videoId}?autoplay=1&rel=0`}
-                    title={currentLesson.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-                <div className="space-y-4">
-                  <p className="text-foreground/80 leading-relaxed">{currentLesson.description}</p>
-                  {nextLessonData ? (
-                      <Button onClick={handleNextLesson} size="lg" className="w-full md:w-auto">
-                          Marcar como concluída e ir para a próxima aula
-                          <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                  ) : (
-                      <Button onClick={() => setCompletedLessons(prev => new Set(prev).add(currentLesson.id))} size="lg" className="w-full md:w-auto" disabled={completedLessons.has(currentLesson.id)}>
-                          {completedLessons.has(currentLesson.id) ? 'Parabéns! Você concluiu o curso!' : 'Finalizar Curso'}
-                          <CheckCircle className="w-5 h-5 ml-2" />
-                      </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="h-full flex flex-col gap-8 transition-all duration-500 animate-in fade-in overflow-y-auto">
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <CardTitle className="text-5xl font-headline text-primary">{currentLesson.title}</CardTitle>
+                  <CardDescription className="flex items-center gap-2 pt-2 text-base">
+                    <BookOpen className="w-5 h-5 text-primary/70" />
+                    <span>{currentModule?.title}</span>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col gap-6">
+                  <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg border">
+                    <iframe
+                      key={currentLesson.id}
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${currentLesson.videoId}?autoplay=1&rel=0`}
+                      title={currentLesson.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-foreground/80 leading-relaxed">{currentLesson.description}</p>
+                    {nextLessonData ? (
+                        <Button onClick={handleNextLesson} size="lg" className="w-full md:w-auto">
+                            Marcar como concluída e ir para a próxima aula
+                            <ArrowRight className="w-5 h-5 ml-2" />
+                        </Button>
+                    ) : (
+                        <Button onClick={() => setCompletedLessons(prev => new Set(prev).add(currentLesson.id))} size="lg" className="w-full md:w-auto" disabled={completedLessons.has(currentLesson.id)}>
+                            {completedLessons.has(currentLesson.id) ? 'Parabéns! Você concluiu o curso!' : 'Finalizar Curso'}
+                            <CheckCircle className="w-5 h-5 ml-2" />
+                        </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-4">
+                  <Separator />
+                  <div className="space-y-2 text-center">
+                    <h2 className="text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
+                        <span className="font-headline text-5xl">Acelere Seus Resultados</span> 🔑
+                    </h2>
+                    <p className="text-muted-foreground max-w-2xl mx-auto">
+                        Itens opcionais para turbinar seu aprendizado. Adicione quando quiser.
+                    </p>
+                  </div>
+                  <div className="w-full max-w-5xl mx-auto">
+                      <Carousel opts={{ align: "start", loop: true, }} className="w-full">
+                          <CarouselContent className="-ml-4">
+                          {successKeyItems.map((item) => (
+                              <CarouselItem key={item.slug} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3">
+                                  <div className="p-1">
+                                      <SuccessKeyCard item={item} />
+                                  </div>
+                              </CarouselItem>
+                          ))}
+                          </CarouselContent>
+                          <CarouselPrevious className="hidden sm:flex" />
+                          <CarouselNext className="hidden sm:flex" />
+                      </Carousel>
+                  </div>
+              </div>
+            </div>
           );
         }
         return (
@@ -291,7 +320,7 @@ export function CourseUI() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-hidden">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div className="lg:hidden flex items-center justify-between mb-4">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>

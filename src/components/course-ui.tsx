@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, PlayCircle, Menu, CheckCircle, ArrowRight, Home } from "lucide-react";
+import { BookOpen, PlayCircle, Menu, CheckCircle, ArrowRight, Home, KeyRound } from "lucide-react";
 
 import { courseData, type Lesson, type Module } from "@/data/course";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { YarnIcon } from "@/components/icons";
+import { SuccessKeys, SuccessKeyCard, successKeyItems } from "@/components/success-keys";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Separator } from "@/components/ui/separator";
+
+type ActiveView = "welcome" | "course" | "success-keys";
 
 export function CourseUI() {
   const [currentLesson, setCurrentLesson] = React.useState<Lesson | null>(null);
@@ -20,7 +25,7 @@ export function CourseUI() {
   const [completedLessons, setCompletedLessons] = React.useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
-  const [showWelcome, setShowWelcome] = React.useState(false);
+  const [activeView, setActiveView] = React.useState<ActiveView>("welcome");
   
   const totalLessons = React.useMemo(() => courseData.reduce((acc, module) => acc + module.lessons.length, 0), []);
   const progressPercentage = totalLessons > 0 ? (completedLessons.size / totalLessons) * 100 : 0;
@@ -33,14 +38,16 @@ export function CourseUI() {
       
       let lessonToLoad: Lesson | null = null;
       let moduleToLoad: Module | null = null;
-      let welcomeScreen = true;
+      let initialView: ActiveView = "welcome";
 
       if (savedLastLesson) {
         const { moduleId, lessonId } = JSON.parse(savedLastLesson);
         moduleToLoad = courseData.find((m) => m.id === moduleId) ?? null;
         if (moduleToLoad) {
           lessonToLoad = moduleToLoad.lessons.find((l) => l.id === lessonId) ?? null;
-          welcomeScreen = false;
+          if (lessonToLoad) {
+            initialView = "course";
+          }
         }
       }
       
@@ -48,12 +55,12 @@ export function CourseUI() {
         setCompletedLessons(new Set(JSON.parse(savedCompletedLessons)));
       }
       
-      setShowWelcome(welcomeScreen);
+      setActiveView(initialView);
       setCurrentLesson(lessonToLoad);
       setCurrentModule(moduleToLoad);
     } catch (error) {
       console.error("Falha ao carregar o progresso do curso:", error);
-      setShowWelcome(true);
+      setActiveView("welcome");
     } finally {
       setIsLoading(false);
     }
@@ -62,27 +69,24 @@ export function CourseUI() {
   // Save progress to localStorage
   React.useEffect(() => {
     try {
-      if (currentLesson && currentModule) {
+      if (activeView === "course" && currentLesson && currentModule) {
         const lastLesson = JSON.stringify({
           moduleId: currentModule.id,
           lessonId: currentLesson.id,
         });
         localStorage.setItem("colecao-lucre-com-charme-last-lesson", lastLesson);
-      } else {
-        // Clear last lesson if we are on the welcome screen
-        localStorage.removeItem("colecao-lucre-com-charme-last-lesson");
       }
       localStorage.setItem("colecao-lucre-com-charme-completed", JSON.stringify(Array.from(completedLessons)));
     } catch (error) {
       console.error("Falha ao salvar o progresso do curso:", error);
     }
-  }, [currentLesson, currentModule, completedLessons]);
+  }, [currentLesson, currentModule, completedLessons, activeView]);
 
   const handleLessonClick = (lesson: Lesson, module: Module) => {
     setCurrentLesson(lesson);
     setCurrentModule(module);
+    setActiveView("course");
     setIsSheetOpen(false);
-    setShowWelcome(false);
   };
 
   const handleStartCourse = () => {
@@ -94,11 +98,14 @@ export function CourseUI() {
   };
   
   const handleHomeClick = () => {
-    setShowWelcome(true);
-    setCurrentLesson(null);
-    setCurrentModule(null);
+    setActiveView("welcome");
     setIsSheetOpen(false);
   };
+  
+  const handleSuccessKeysClick = () => {
+    setActiveView("success-keys");
+    setIsSheetOpen(false);
+  }
 
   const findNextLesson = () => {
       if (!currentModule || !currentLesson) return null;
@@ -135,74 +142,173 @@ export function CourseUI() {
   };
 
   const SidebarContent = () => (
-    <>
-      <div className="flex flex-col h-full">
-        <div className="p-6 flex flex-col gap-4">
-            <div className="flex items-center gap-4">
-                <YarnIcon className="w-10 h-10 text-primary" />
-                <h1 className="text-4xl font-headline text-primary">Coleção Lucre com Charme</h1>
-            </div>
-            <div className="space-y-2">
-                <Progress value={progressPercentage} className="h-2" />
-                <p className="text-xs text-center text-muted-foreground">{Math.round(progressPercentage)}% completo</p>
-            </div>
-        </div>
-        <div className="px-4 pb-2">
-            <Button
-                variant="ghost"
-                onClick={handleHomeClick}
-                className={cn(
-                    "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
-                    showWelcome
-                    ? "bg-accent text-accent-foreground font-bold"
-                    : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
-                )}
-            >
-                <Home className="w-5 h-5" />
-                <span className="flex-1 text-left">Início</span>
-            </Button>
-        </div>
-        <ScrollArea className="flex-1">
-          <Accordion type="single" collapsible defaultValue={currentModule?.id ?? courseData[0]?.id} className="w-full px-4">
-            {courseData.map((module) => (
-              <AccordionItem value={module.id} key={module.id}>
-                <AccordionTrigger className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
-                  {module.title}
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex flex-col gap-2 pt-2">
-                    {module.lessons.map((lesson) => (
-                      <Button
-                        key={lesson.id}
-                        variant="ghost"
-                        onClick={() => handleLessonClick(lesson, module)}
-                        className={cn(
-                          "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-2 leading-normal",
-                          currentLesson?.id === lesson.id
-                            ? "bg-accent text-accent-foreground font-bold"
-                            : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
-                        )}
-                      >
-                         {completedLessons.has(lesson.id) ? (
-                            <CheckCircle className="w-5 h-5 text-green-500" />
-                          ) : (
-                            <PlayCircle className="w-5 h-5" />
-                          )}
-                        <span className="flex-1 text-left">{lesson.title}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </ScrollArea>
-        <div className="p-4 border-t">
-          <p className="text-xs text-muted-foreground text-center">Feito à mão com ♡ para criadores apaixonados.</p>
-        </div>
+    <div className="flex flex-col h-full">
+      <div className="p-6 flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+              <YarnIcon className="w-10 h-10 text-primary" />
+              <h1 className="text-4xl font-headline text-primary">Coleção Lucre com Charme</h1>
+          </div>
+          <div className="space-y-2">
+              <Progress value={progressPercentage} className="h-2" />
+              <p className="text-xs text-center text-muted-foreground">{Math.round(progressPercentage)}% completo</p>
+          </div>
       </div>
-    </>
+      <div className="px-4 pb-2 space-y-2">
+          <Button
+              variant="ghost"
+              onClick={handleHomeClick}
+              className={cn(
+                  "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
+                  activeView === 'welcome'
+                  ? "bg-accent text-accent-foreground font-bold"
+                  : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+              )}
+          >
+              <Home className="w-5 h-5" />
+              <span className="flex-1 text-left">Início</span>
+          </Button>
+          <Button
+              variant="ghost"
+              onClick={handleSuccessKeysClick}
+              className={cn(
+                  "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-3 leading-normal w-full text-lg",
+                  activeView === 'success-keys'
+                  ? "bg-accent text-accent-foreground font-bold"
+                  : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+              )}
+          >
+              <KeyRound className="w-5 h-5" />
+              <span className="flex-1 text-left">Chaves do Sucesso Rápido</span>
+          </Button>
+      </div>
+      <ScrollArea className="flex-1">
+        <Accordion type="single" collapsible defaultValue={currentModule?.id ?? courseData[0]?.id} className="w-full px-4">
+          {courseData.map((module) => (
+            <AccordionItem value={module.id} key={module.id}>
+              <AccordionTrigger className="text-lg font-bold text-primary/80 hover:text-primary transition-colors">
+                {module.title}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="flex flex-col gap-2 pt-2">
+                  {module.lessons.map((lesson) => (
+                    <Button
+                      key={lesson.id}
+                      variant="ghost"
+                      onClick={() => handleLessonClick(lesson, module)}
+                      className={cn(
+                        "justify-start gap-3 pl-4 transition-all duration-300 h-auto py-2 leading-normal",
+                        activeView === 'course' && currentLesson?.id === lesson.id
+                          ? "bg-accent text-accent-foreground font-bold"
+                          : "text-foreground/70 hover:bg-accent/50 hover:text-accent-foreground"
+                      )}
+                    >
+                       {completedLessons.has(lesson.id) ? (
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <PlayCircle className="w-5 h-5" />
+                        )}
+                      <span className="flex-1 text-left">{lesson.title}</span>
+                    </Button>
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </ScrollArea>
+      <div className="p-4 border-t">
+        <p className="text-xs text-muted-foreground text-center">Feito à mão com ♡ para criadores apaixonados.</p>
+      </div>
+    </div>
   );
+
+  const renderContent = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+    switch (activeView) {
+      case "welcome":
+        return <WelcomeArea onStart={handleStartCourse} />;
+      case "success-keys":
+        return <SuccessKeys />;
+      case "course":
+        if (currentLesson) {
+          return (
+            <div className="h-full flex flex-col gap-8 transition-all duration-500 animate-in fade-in overflow-y-auto">
+              <Card className="flex flex-col">
+                <CardHeader>
+                  <CardTitle className="text-3xl sm:text-4xl md:text-5xl font-headline text-primary">{currentLesson.title}</CardTitle>
+                  <CardDescription className="flex items-center gap-2 pt-2 text-base">
+                    <BookOpen className="w-5 h-5 text-primary/70" />
+                    <span>{currentModule?.title}</span>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col gap-6">
+                  <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg border">
+                    <iframe
+                      key={currentLesson.id}
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${currentLesson.videoId}?autoplay=1&rel=0`}
+                      title={currentLesson.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                  <div className="space-y-4">
+                    <p className="text-foreground/80 leading-relaxed">{currentLesson.description}</p>
+                    {nextLessonData ? (
+                        <Button onClick={handleNextLesson} size="lg" className="w-full md:w-auto">
+                            Marcar como concluída e ir para a próxima aula
+                            <ArrowRight className="w-5 h-5 ml-2" />
+                        </Button>
+                    ) : (
+                        <Button onClick={() => setCompletedLessons(prev => new Set(prev).add(currentLesson.id))} size="lg" className="w-full md:w-auto" disabled={completedLessons.has(currentLesson.id)}>
+                            {completedLessons.has(currentLesson.id) ? 'Parabéns! Você concluiu o curso!' : 'Finalizar Curso'}
+                            <CheckCircle className="w-5 h-5 ml-2" />
+                        </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="space-y-4">
+                  <Separator />
+                  <div className="space-y-2 text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
+                        <span className="font-headline text-4xl sm:text-5xl">Acelere Seus Resultados</span> 🔑
+                    </h2>
+                    <p className="text-muted-foreground max-w-2xl mx-auto">
+                        Itens opcionais para turbinar seu aprendizado. Adicione quando quiser.
+                    </p>
+                  </div>
+                  <div className="w-full max-w-5xl mx-auto px-10 sm:px-12">
+                      <Carousel opts={{ align: "start", loop: true, }} className="w-full">
+                          <CarouselContent className="-ml-4">
+                          {successKeyItems.map((item) => (
+                              <CarouselItem key={item.slug} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                                  <div className="p-1">
+                                      <SuccessKeyCard item={item} />
+                                  </div>
+                              </CarouselItem>
+                          ))}
+                          </CarouselContent>
+                          <CarouselPrevious />
+                          <CarouselNext />
+                      </Carousel>
+                  </div>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div className="flex items-center justify-center h-full">
+            <p>Selecione uma aula para começar.</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -212,7 +318,7 @@ export function CourseUI() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
         <div className="lg:hidden flex items-center justify-between mb-4">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
@@ -226,55 +332,10 @@ export function CourseUI() {
             </Sheet>
             <div className="flex items-center gap-2">
                 <YarnIcon className="w-6 h-6 text-primary" />
-                <h1 className="text-2xl font-headline text-primary">Coleção Lucre com Charme</h1>
+                <h1 className="text-xl sm:text-2xl font-headline text-primary">Coleção Lucre com Charme</h1>
             </div>
         </div>
-        
-        {isLoading ? (
-          <LoadingState />
-        ) : showWelcome ? (
-            <WelcomeArea onStart={handleStartCourse} />
-        ) : currentLesson ? (
-          <Card className="h-full flex flex-col transition-all duration-500 animate-in fade-in">
-            <CardHeader>
-              <CardTitle className="text-5xl font-headline text-primary">{currentLesson.title}</CardTitle>
-              <CardDescription className="flex items-center gap-2 pt-2 text-base">
-                <BookOpen className="w-5 h-5 text-primary/70" />
-                <span>{currentModule?.title}</span>
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col gap-6">
-              <div className="aspect-video w-full rounded-lg overflow-hidden shadow-lg border">
-                <iframe
-                  key={currentLesson.id}
-                  className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${currentLesson.videoId}?autoplay=1&rel=0`}
-                  title={currentLesson.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
-              <div className="space-y-4">
-                <p className="text-foreground/80 leading-relaxed">{currentLesson.description}</p>
-                {nextLessonData ? (
-                    <Button onClick={handleNextLesson} size="lg" className="w-full md:w-auto">
-                        Marcar como concluída e ir para a próxima aula
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
-                ) : (
-                    <Button onClick={() => setCompletedLessons(prev => new Set(prev).add(currentLesson.id))} size="lg" className="w-full md:w-auto" disabled={completedLessons.has(currentLesson.id)}>
-                        {completedLessons.has(currentLesson.id) ? 'Parabéns! Você concluiu o curso!' : 'Finalizar Curso'}
-                        <CheckCircle className="w-5 h-5 ml-2" />
-                    </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <p>Selecione uma aula para começar.</p>
-          </div>
-        )}
+        {renderContent()}
       </main>
     </div>
   );
@@ -298,28 +359,60 @@ const LoadingState = () => (
 );
 
 const WelcomeArea = ({ onStart }: { onStart: () => void }) => (
-    <div className="h-full flex items-center justify-center transition-all duration-500 animate-in fade-in">
-        <Card className="max-w-2xl w-full text-center shadow-2xl">
-            <CardHeader>
+    <div className="h-full flex flex-col items-center justify-center transition-all duration-500 animate-in fade-in">
+        <Card className="max-w-4xl w-full shadow-2xl">
+            <CardHeader className="text-center px-4 sm:px-6">
                 <div className="mx-auto bg-primary/10 rounded-full p-4 w-24 h-24 flex items-center justify-center border-4 border-primary/20">
                     <YarnIcon className="w-16 h-16 text-primary" />
                 </div>
-                <CardTitle className="text-6xl font-headline text-primary mt-4">Seja Bem-Vinda!</CardTitle>
-                <CardDescription className="text-lg text-muted-foreground pt-2">
+                <CardTitle className="text-4xl sm:text-5xl md:text-6xl font-headline text-primary mt-4">Seja Bem-Vinda!</CardTitle>
+                <CardDescription className="text-md sm:text-lg text-muted-foreground pt-2">
                     à <span className="font-bold text-primary/90">Coleção Lucre com Charme</span>
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-                <p className="text-foreground/80 leading-relaxed text-lg">
+            <CardContent className="space-y-6 text-center px-4 sm:px-6">
+                <p className="text-foreground/80 leading-relaxed text-md sm:text-lg max-w-2xl mx-auto">
                     Estamos muito felizes em ter você aqui! Prepare-se para uma jornada incrível pelo mundo do crochê, onde você aprenderá a criar peças lindas e lucrativas com todo o charme que você merece.
                 </p>
-                <p className="text-foreground/80 leading-relaxed text-lg">
+                <p className="text-foreground/80 leading-relaxed text-md sm:text-lg max-w-2xl mx-auto">
                     Escolha uma aula no menu ao lado para continuar de onde parou ou clique no botão abaixo para iniciar sua primeira aula.
                 </p>
-                <Button onClick={onStart} size="lg" className="w-full md:w-auto mt-4 text-xl h-14 px-10">
+                <Button onClick={onStart} size="lg" className="w-full md:w-auto mt-4 text-lg sm:text-xl h-auto py-3 sm:h-14 px-8 sm:px-10">
                     Começar a Crochetar Agora!
-                    <ArrowRight className="w-6 h-6 ml-3" />
+                    <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 ml-3" />
                 </Button>
+                
+                <Separator className="my-8"/>
+
+                <div className="space-y-4">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-primary/90 flex items-center justify-center gap-3">
+                        🔑 <span className="font-headline text-4xl sm:text-5xl">Chaves do Sucesso Rápido</span>
+                    </h2>
+                    <p className="text-muted-foreground max-w-2xl mx-auto">
+                        Itens opcionais para acelerar seus resultados. Adicione quando quiser.
+                    </p>
+                </div>
+                 <div className="w-full max-w-5xl mx-auto px-4 sm:px-12">
+                    <Carousel
+                        opts={{
+                            align: "start",
+                            loop: true,
+                        }}
+                        className="w-full"
+                    >
+                        <CarouselContent className="-ml-4">
+                        {successKeyItems.map((item) => (
+                            <CarouselItem key={item.slug} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                                <div className="p-1">
+                                    <SuccessKeyCard item={item} />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                    </Carousel>
+                </div>
             </CardContent>
         </Card>
     </div>
